@@ -283,6 +283,19 @@ src/
 | `pnpm db:migrate` | Apply migrations to the database |
 | `pnpm db:push` | Push the schema directly to the database (no migration files) |
 | `pnpm db:studio` | Open Drizzle Studio |
+| `pnpm gift:create <CODE> <CREDITS> [MAX_USES] [EXPIRES]` | Create a gift code for free credits (see below) |
+
+### Gift codes (free credits)
+
+Create a code, share it, and anyone who signs in can redeem it once on the **Billing** page:
+
+```bash
+pnpm gift:create XMAS100 100              # 100 credits, unlimited people, never expires
+pnpm gift:create FRIENDS 60 10            # 60 credits, first 10 people only
+pnpm gift:create NEWYEAR 40 0 2027-01-31  # 0 = no limit; stops working after Jan 31
+```
+
+Codes are case-insensitive. One portrait costs 20 credits. Run `pnpm db:push` (or `pnpm db:migrate`) first so the `gift_code` tables exist.
 
 ---
 

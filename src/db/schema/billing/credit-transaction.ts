@@ -9,7 +9,7 @@ export const creditTransaction = pgTable("credit_transaction", {
   userId: text("userId")
     .notNull()
     .references(() => user.id),
-  // "recharge" | "usage"
+  // "recharge" | "usage" | "gift"
   type: text("type").notNull(),
   amount: integer("amount").notNull(),
   balanceAfter: integer("balanceAfter").notNull(),

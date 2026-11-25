@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, CreditCard, Coins, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CreditCard, Coins, RefreshCw, CheckCircle2, Gift } from 'lucide-react';
 import { useSession } from '@/lib/auth/client';
 import BrandLogo from '@/components/pets-santa/brand-logo';
 
@@ -41,6 +41,65 @@ function formatMoney(amount: number, currency: string) {
 function formatDate(value: string | null) {
   if (!value) return '—';
   return new Date(value).toLocaleString();
+}
+
+function RedeemGiftCode({ onRedeemed }: { onRedeemed: () => void }) {
+  const [code, setCode] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [message, setMessage] = React.useState<{ ok: boolean; text: string } | null>(null);
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!code.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || 'Could not redeem that code.');
+      setMessage({ ok: true, text: `🎁 ${json.credits} free credits added to your account!` });
+      setCode('');
+      onRedeemed();
+    } catch (err) {
+      setMessage({ ok: false, text: err instanceof Error ? err.message : 'Could not redeem that code.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <section className="mb-10 rounded-3xl border border-slate-100 bg-white shadow-sm p-7">
+      <div className="flex items-center gap-2 text-slate-500 text-xs font-bold uppercase tracking-widest">
+        <Gift className="w-4 h-4 text-red-500" /> Have a gift code?
+      </div>
+      <form onSubmit={handleSubmit} className="mt-4 flex flex-col sm:flex-row gap-3">
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="Enter your code, e.g. XMAS100"
+          aria-label="Gift code"
+          autoComplete="off"
+          className="flex-1 rounded-full border border-slate-200 px-5 py-2.5 text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-red-200"
+        />
+        <button
+          type="submit"
+          disabled={isSubmitting || !code.trim()}
+          className="px-6 py-2.5 rounded-full bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition disabled:opacity-50"
+        >
+          {isSubmitting ? 'Redeeming…' : 'Redeem'}
+        </button>
+      </form>
+      {message && (
+        <p className={`mt-3 text-sm font-semibold ${message.ok ? 'text-emerald-600' : 'text-red-600'}`}>
+          {message.text}
+        </p>
+      )}
+    </section>
+  );
 }
 
 function BillingPageContent() {
@@ -164,6 +223,8 @@ function BillingPageContent() {
                 </p>
               </div>
             </div>
+
+            <RedeemGiftCode onRedeemed={() => void loadBilling()} />
 
             {/* Payment history (支付历史) */}
             <section className="mb-10">

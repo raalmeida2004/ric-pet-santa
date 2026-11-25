@@ -12,7 +12,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "keepalive": "node scripts/keepalive.mjs"
+    "keepalive": "node scripts/keepalive.mjs",
+    "gift:create": "node scripts/create-gift-code.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

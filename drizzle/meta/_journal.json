@@ -15,6 +15,13 @@
       "when": 1782300000000,
       "tag": "0002_generation_task",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795000000000,
+      "tag": "0003_gift_codes",
+      "breakpoints": true
     }
   ]
 }
