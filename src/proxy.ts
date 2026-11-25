@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
-import { authRoutes, DEFAULT_LOGIN_REDIRECT, publicRoutes } from "./routes";
+import { authRoutes, publicRoutes } from "./routes";
 
 export async function proxy(request: NextRequest) {
   const session = getSessionCookie(request);
@@ -19,12 +19,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Always let people reach /signin and /signup. The cookie check above only
+  // sees that *a* session cookie exists, not that it is still valid, so
+  // redirecting here trapped users holding an expired cookie in a loop
+  // (home page says "Log in" -> sign-in page bounces back to home).
   if (isAuthRoute()) {
-    if (session) {
-      return NextResponse.redirect(
-        new URL(DEFAULT_LOGIN_REDIRECT, request.url),
-      );
-    }
     return NextResponse.next();
   }
 
